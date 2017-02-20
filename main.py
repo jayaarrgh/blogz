@@ -21,7 +21,12 @@ class BlogHandler(webapp2.RequestHandler):
         """
 
         # TODO - filter the query so that only posts by the given user
-        return None
+        posts = db.GqlQuery("SELECT * FROM Post WHERE author = '%s' ORDER BY created DESC" % user)
+        # user = db.GqlQuery("SELECT * FROM User WHERE username = '%s'" % user)
+
+        q = Post.all().order("-created").filter("author =", user)
+        return q.fetch(limit=limit, offset=offset)  # FIXED IT!!!
+
 
     def get_user_by_name(self, username):
         """ Get a user object from the db, based on their username """
@@ -130,6 +135,7 @@ class NewPostHandler(BlogHandler):
         """ Create a new blog post if possible. Otherwise, return with an error message """
         title = self.request.get("title")
         body = self.request.get("body")
+
 
         if title and body:
 
